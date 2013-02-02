@@ -1,4 +1,4 @@
-package Bot::Cobalt::Plugin::Silly::LOLCAT;
+package Bot::Cobalt::Plugin::Silly::BoneEasy;
 our $VERSION;
 BEGIN {
   require Bot::Cobalt::Plugin::Silly;
@@ -6,64 +6,47 @@ BEGIN {
 }
 
 use 5.12.1;
-
-use POE::Filter::Stackable;
-use POE::Filter::Line;
-use POE::Filter::LOLCAT;
-
 use Bot::Cobalt::Common;
 
-sub FILTER () { 0 }
+use Bone::Easy;
 
-sub new { bless [undef], shift }
+sub new { bless [], shift }
 
 sub Cobalt_register {
   my ($self, $core) = splice @_, 0, 2;
   
   $core->plugin_register( $self, 'SERVER',
-    'public_cmd_lolcat'
+    'public_cmd_pickup'
   );
-
   
   $core->log->info("$VERSION loaded");
+
   return PLUGIN_EAT_NONE
 }
 
 sub Cobalt_unregister {
   my ($self, $core) = splice @_, 0, 2;
+
   $core->log->info("Unloaded");
+
   return PLUGIN_EAT_NONE
 }
 
-sub Bot_public_cmd_lolcat {
+sub Bot_public_cmd_pickup {
   my ($self, $core) = splice @_, 0, 2;
 
   my $msg     = ${ $_[0] };
   my $context = $msg->context;
 
-  my $str = decode_irc( join ' ', @{ $msg->message_array } );
-  $str ||= "Can I have a line to parse?";
-
-  my $filter = $self->[FILTER] //= POE::Filter::Stackable->new(
-    Filters => [
-        POE::Filter::Line->new(),
-        POE::Filter::LOLCAT->new(),
-    ],
-  );
-
-  $filter->get_one_start([$str."\n"]);
-
-  my $lol = $filter->get_one;
-
-  my $cat = shift @$lol;
-  chomp($cat);
+  my $resp = pickup;
 
   my $channel = $msg->channel;
+
   $core->send_event( 'send_message',
     $context,
     $channel,
-    'LOLCAT: '.$cat
-  ) if $cat;  
+    $resp
+  ) if $resp;
   
   return PLUGIN_EAT_ALL
 }
@@ -74,19 +57,20 @@ __END__
 
 =head1 NAME
 
-Bot::Cobalt::Plugin::Silly::LOLCAT - Translate to LOLCAT
+Bot::Cobalt::Plugin::Silly::BoneEasy - Get pickup lines from Bone-Easy
 
 =head1 SYNOPSIS
 
-  !plugin load LOLCAT Bot::Cobalt::Plugin::Silly::LOLCAT
-  !lolcat some text here
+  !plugin load Bone Bot::Cobalt::Plugin::Silly::BoneEasy
+  !pickup
 
 =head1 DESCRIPTION
 
 A L<Bot::Cobalt> plugin.
 
-Simple bridge to L<POE::Filter::LOLCAT> (which in turn uses 
-L<Acme::LOLCAT>).
+Simple bridge to L<Bone::Easy>.
+
+Generates pickup lines that work every time, 60% of the time.
 
 =head1 AUTHOR
 

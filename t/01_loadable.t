@@ -1,14 +1,13 @@
-use Test::More tests => 24;
+use Test::More;
 
 my @modules = qw/
   AutoOpAll
+  BoneEasy
   DailyFail
   LOLCAT
   OutputLOLCAT
-  MstOMatic
   Reverse
   Rot13
-  ThreatLevel
 /;
 
 my $prefix = "Bot::Cobalt::Plugin::Silly::";
@@ -19,3 +18,5 @@ for my $mod (@modules) {
   new_ok( $module );
   can_ok( $module, 'Cobalt_register', 'Cobalt_unregister' );
 }
+
+done_testing;
